@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaThumbsUp,
   FaThumbsDown,
@@ -43,6 +43,10 @@ const PostDetails = () => {
     queryKey: ["profile"],
     queryFn: () => userProfileAPI(),
   });
+
+  useEffect(() => {
+    refetchPost();
+  }, [postId, refetchPost]);
 
   //----Follow logic----
   //Get the author id
