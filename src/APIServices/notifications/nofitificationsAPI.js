@@ -4,7 +4,9 @@ const BASE_URL = "http://localhost:5000/api/v1/notifications";
 
 //!fetch all notifications
 export const fetchNotificationsAPI = async (postData) => {
-  const response = await axios.get(`${BASE_URL}`);
+  const response = await axios.get(`${BASE_URL}`, {
+    withCredentials: true,
+  });
   return response.data;
 };
 
