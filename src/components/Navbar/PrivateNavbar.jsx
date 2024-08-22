@@ -6,11 +6,12 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { MdOutlineDashboard } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
-import { useMutation } from "@tanstack/react-query";
-import { logoutAPI } from "../../APIServices/users/usersAPI";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { logoutAPI, userProfileAPI } from "../../APIServices/users/usersAPI";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/slices/authSlices";
 import NotificationCounts from "../Notification/NotificationCounts";
+import Avatar from "../User/Avatar";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -26,6 +27,11 @@ export default function PrivateNavbar() {
     mutationKey: ["logout"],
     mutationFn: logoutAPI,
   });
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["profile"],
+    queryFn: userProfileAPI,
+  });
+  console.log(data);
   //logout handler
   const logoutHandler = async () => {
     logoutMutation
@@ -108,15 +114,24 @@ export default function PrivateNavbar() {
                         <span className="absolute -inset-1.5" />
                         <span className="sr-only">Open user menu</span>
                         {/* Profile Image */}
-                        {/* {data?.user?.profilePicture ? (
+                        {data?.user?.profilePicture ? (
                           <img
                             className="h-10 w-10 rounded-full"
-                            src={data?.user?.profilePicture}
+                            src={
+                              data.user.profilePicture.path ||
+                              data.user.profilePicture
+                            }
+                            alt="profile"
+                          />
+                        ) : data?.user?.profilePicture?.path ? (
+                          <img
+                            className="h-10 w-10 rounded-full"
+                            src={data.user.profilePicture.path}
                             alt="profile"
                           />
                         ) : (
                           <Avatar />
-                        )} */}
+                        )}
                       </Menu.Button>
                     </div>
                     <Transition
@@ -209,15 +224,24 @@ export default function PrivateNavbar() {
                     />
                   </span>
                   {/* Profile Image */}
-                  {/* {data?.user?.profilePicture ? (
+                  {data?.user?.profilePicture ? (
                     <img
                       className="h-10 w-10 rounded-full"
-                      src={data?.user?.profilePicture}
+                      src={
+                        data.user.profilePicture.path ||
+                        data.user.profilePicture
+                      }
+                      alt="profile"
+                    />
+                  ) : data?.user?.profilePicture?.path ? (
+                    <img
+                      className="h-10 w-10 rounded-full"
+                      src={data.user.profilePicture.path}
                       alt="profile"
                     />
                   ) : (
                     <Avatar />
-                  )} */}
+                  )}
                 </div>
                 <div className="ml-3">
                   <div className="text-base font-medium text-gray-800">
