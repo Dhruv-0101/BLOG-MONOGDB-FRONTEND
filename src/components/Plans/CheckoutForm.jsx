@@ -17,7 +17,7 @@ const CheckoutForm = () => {
     mutationKey: ["checkout"],
     mutationFn: paymentIntentAPI,
   });
-  console.log(paymentMutation)
+  console.log(paymentMutation);
   //configure stripe
   const stripe = useStripe();
   const elements = useElements();
@@ -40,7 +40,7 @@ const CheckoutForm = () => {
             elements,
             clientSecret: paymentMutation.data?.clientSecret,
             confirmParams: {
-              return_url: "http://localhost:5173/success",
+              return_url: "https://blog-monogdb-frontend.vercel.app//success",
             },
           });
           setErrorMessage(error?.message);
