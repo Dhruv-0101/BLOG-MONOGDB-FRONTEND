@@ -4,75 +4,95 @@ import React from "react";
 import * as Yup from "yup";
 import { addCategoryAPI } from "../../APIServices/category/categoryAPI";
 import AlertMessage from "../Alert/AlertMessage";
+import { FaTags } from "react-icons/fa";
 
 const AddCategory = () => {
   // category mutation
   const categoryMutation = useMutation({
-    mutationKey: ["create-post"],
+    mutationKey: ["add-category"],
     mutationFn: addCategoryAPI,
   });
+
   const formik = useFormik({
-    // initial data
     initialValues: {
       categoryName: "",
     },
-    // validation
     validationSchema: Yup.object({
-      categoryName: Yup.string().required("categoryName is required"),
+      categoryName: Yup.string()
+        .min(2, "Category name must be at least 2 characters")
+        .required("Category name is required"),
     }),
-    // submit
     onSubmit: (values) => {
       categoryMutation.mutate(values);
     },
   });
-  console.log(categoryMutation);
+
+  const isLoading = categoryMutation.isPending;
+  const isSuccess = categoryMutation.isSuccess;
+  const isError = categoryMutation.isError;
+  const errorMsg = categoryMutation?.error?.response?.data?.message || "Failed to create category.";
+
   return (
-    <div className="flex flex-wrap">
-      <div className="w-full  p-4">
-        <div className="flex flex-col justify-center max-w-md mx-auto h-full py-12">
-          <form onSubmit={formik.handleSubmit}>
-            <h1 className="text-3xl font-bold font-heading mb-4">
-              Add Category
-            </h1>
-            {/* show loading */}
+    <div className="max-w-md mx-auto py-4">
+      <div className="bg-white/70 backdrop-blur-md border border-slate-100/80 rounded-3xl p-6 sm:p-8 shadow-sm">
+        
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md">
+            <FaTags size={18} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-800 tracking-tight">Add Category</h2>
+            <p className="text-xs font-semibold text-slate-400 mt-0.5">
+              Create tags to organize and filter articles.
+            </p>
+          </div>
+        </div>
 
-            {categoryMutation.isPending && (
-              <AlertMessage type="loading" message="Loading please wait" />
-            )}
-            {categoryMutation.isSuccess && (
-              <AlertMessage
-                type="success"
-                message="Category created successfully"
-              />
-            )}
-            {categoryMutation.isError && (
-              <AlertMessage
-                type="error"
-                message={categoryMutation?.error?.response?.data?.message}
-              />
-            )}
-            {/* Category Name */}
+        {/* Alerts */}
+        <div className="mb-4 space-y-2">
+          {isLoading && (
+            <AlertMessage type="loading" message="Creating category tag..." />
+          )}
+          {isSuccess && (
+            <AlertMessage
+              type="success"
+              message="Category tag created successfully!"
+            />
+          )}
+          {isError && <AlertMessage type="error" message={errorMsg} />}
+        </div>
 
+        <form onSubmit={formik.handleSubmit} className="space-y-4">
+          
+          {/* Category Name Input */}
+          <div>
+            <label htmlFor="categoryName" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+              Category Name
+            </label>
             <input
               type="text"
+              id="categoryName"
+              placeholder="e.g. Technology, Health, Business"
               {...formik.getFieldProps("categoryName")}
-              className="w-full rounded-full p-4 outline-none border border-gray-100  shadow placeholder-gray-500 focus:ring focus:ring-orange-200 transition duration-200 mb-4"
-              placeholder="Category Name"
+              className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200/80 focus:border-indigo-500 focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all focus:ring-4 focus:ring-indigo-50"
             />
             {formik.touched.categoryName && formik.errors.categoryName && (
-              <div className="text-red-500 mb-4 mt-1">
+              <p className="text-xs font-bold text-rose-600 mt-1.5 pl-1">
                 {formik.errors.categoryName}
-              </div>
+              </p>
             )}
+          </div>
 
-            <button
-              className="h-14 inline-flex items-center justify-center py-4 px-6 text-white font-bold font-heading rounded-full bg-orange-500 w-full text-center border border-orange-600 shadow hover:bg-orange-600 focus:ring focus:ring-orange-200 transition duration-200 mb-8"
-              type="submit"
-            >
-              Add Category
-            </button>
-          </form>
-        </div>
+          {/* Action Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-3 rounded-full text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-md shadow-indigo-100 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none"
+          >
+            Create Category
+          </button>
+        </form>
       </div>
     </div>
   );

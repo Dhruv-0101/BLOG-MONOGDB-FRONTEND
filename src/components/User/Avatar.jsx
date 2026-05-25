@@ -1,11 +1,11 @@
 import React from "react";
-import { AiOutlineUser } from "react-icons/ai";
+import { FaUser } from "react-icons/fa";
+
 const Avatar = () => {
   return (
-    <button className="bg-white rounded-full flex text-sm focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500">
-      <span className="sr-only">Open user menu</span>
-      <AiOutlineUser className="h-5 w-5 text-gray-400" />
-    </button>
+    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400/80 shrink-0">
+      <FaUser className="h-[45%] w-[45%]" />
+    </div>
   );
 };
 

@@ -35,6 +35,7 @@ import DashboardPosts from "./components/User/DashboardPosts";
 import Settings from "./components/User/SettingsPage";
 import AddEmailComponent from "./components/User/UpdateEmail";
 import UploadProfilePic from "./components/User/UploadProfilePic";
+import NotFound from "./components/NotFound/NotFound";
 
 function App() {
   // ! use query
@@ -225,6 +226,7 @@ function App() {
           }
           path="/free-subscription"
         />
+        <Route element={<NotFound />} path="*" />
         {/* <Route element={<UpdatePost />} path="/posts/:postId" /> */}
         {/* <CreatePost />
         <PostsList /> */}

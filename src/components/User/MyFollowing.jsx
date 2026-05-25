@@ -2,59 +2,75 @@ import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { userProfileAPI } from "../../APIServices/users/usersAPI";
 import Avatar from "./Avatar";
+import { FaUsers } from "react-icons/fa";
 
 const MyFollowing = () => {
-  //fetch userProfile
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["profile"],
     queryFn: userProfileAPI,
   });
-  //get the user following
-  const myFollowing = data?.user?.following;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  const myFollowing = data?.user?.following || [];
 
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden bg-gray-50">
-      <div className="relative container px-4 mx-auto">
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-2xl mx-auto mb-20 text-center">
-            <h1 className="font-heading text-5xl xs:text-6xl md:text-7xl font-bold text-gray-900 mb-8">
-              <span>
-                My <span className="text-orange-900">Following</span>
-              </span>
-            </h1>
-            <p className="text-lg text-gray-500 mb-6">
-              Here are all the people you follow.
-            </p>
-          </div>
-          <div className="flex flex-wrap -mx-4 -mb-8">
-            {myFollowing?.map((follower) => {
-              return (
-                <div className="w-full md:w-1/2 lg:w-1/3 px-4 mb-8">
-                  <div className="max-w-md mx-auto py-10 px-6 text-center bg-white rounded-md">
-                    {follower?.profilePicture ? (
-                      <img
-                        className="w-24 h-24 rounded-full block mb-6 mx-auto"
-                        src={follower?.profilePicture}
-                        alt
-                      />
-                    ) : (
-                      <Avatar />
-                    )}
-                    <h5 className="text-2xl font-bold text-gray-900 mb-2">
-                      {follower?.username}
-                    </h5>
-                    <span className="block text-orange-900 mb-3">
-                      {follower?.email || "No email"}
-                    </span>
-                    <div className="flex items-center justify-center"></div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Header section */}
+      <div>
+        <h1 className="text-xl font-bold text-slate-800 tracking-tight">Creators I Follow</h1>
+        <p className="text-xs font-semibold text-slate-400 mt-1">
+          Here are all the writers and creators whose work you are following.
+        </p>
       </div>
-    </section>
+
+      {myFollowing.length === 0 ? (
+        /* Empty State */
+        <div className="bg-white/70 backdrop-blur-md border border-slate-100/80 rounded-3xl p-12 text-center shadow-sm">
+          <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 mx-auto mb-4">
+            <FaUsers size={28} />
+          </div>
+          <h3 className="text-lg font-bold text-slate-800 mb-1">Not following anyone</h3>
+          <p className="text-slate-500 text-sm max-w-sm mx-auto">
+            Discover other talented writers in StoryFlow and follow them to see their latest stories.
+          </p>
+        </div>
+      ) : (
+        /* Following Grid */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {myFollowing.map((follower) => (
+            <div
+              key={follower._id}
+              className="bg-white/70 backdrop-blur-md border border-slate-100/80 rounded-2xl p-6 text-center hover:shadow-md hover:scale-[1.01] hover:bg-white/90 transition-all duration-200 flex flex-col items-center"
+            >
+              {follower?.profilePicture ? (
+                <img
+                  className="w-18 h-18 rounded-full object-cover mb-4 ring-4 ring-indigo-50/70"
+                  src={follower?.profilePicture}
+                  alt={follower?.username}
+                />
+              ) : (
+                <div className="w-18 h-18 rounded-full overflow-hidden mb-4 ring-4 ring-indigo-50/70">
+                  <Avatar />
+                </div>
+              )}
+              <h3 className="text-base font-bold text-slate-800 tracking-tight">
+                {follower?.username || "StoryFlow User"}
+              </h3>
+              <span className="block text-xs font-semibold text-slate-400 mt-1">
+                {follower?.email || "No email provided"}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

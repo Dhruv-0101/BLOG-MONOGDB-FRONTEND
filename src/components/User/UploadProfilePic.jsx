@@ -1,154 +1,139 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-
-import "react-quill/dist/quill.snow.css";
-import { FaTimesCircle } from "react-icons/fa";
-
-import { useMutation, useQuery } from "@tanstack/react-query";
-
+import { FaTimesCircle, FaCloudUploadAlt } from "react-icons/fa";
+import { useMutation } from "@tanstack/react-query";
 import AlertMessage from "../Alert/AlertMessage";
 import { uplaodProfilePicAPI } from "../../APIServices/users/usersAPI";
 
 const UploadProfilePic = () => {
-  // state for wysiwg
-
-  //File upload state
   const [imageError, setImageErr] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
 
-  // post mutation
   const mutation = useMutation({
     mutationKey: ["upload-profile-pic"],
     mutationFn: uplaodProfilePicAPI,
   });
+
   const formik = useFormik({
-    // initial data
     initialValues: {
       image: "",
     },
-    // validation
     validationSchema: Yup.object({
-      image: Yup.string().required("image is required"),
+      image: Yup.string().required("Image is required"),
     }),
-    // submit
     onSubmit: (values) => {
       const formData = new FormData();
       formData.append("image", values.image);
-
       mutation.mutate(formData);
     },
   });
 
-  console.log(mutation);
-  //!===== File upload logics====
-  //! Handle fileChange
   const handleFileChange = (event) => {
-    //get the file selected
     const file = event.currentTarget.files[0];
-    //Limit file size
-    if (file.size > 1048576) {
-      setImageErr("File size exceed 1MB");
+    if (!file) return;
+
+    if (file.size > 5242880) {
+      setImageErr("File size exceeds 5MB limit");
       return;
     }
-    // limit the file types
+
     if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
-      setImageErr("Invalid file type");
+      setImageErr("Invalid file type. Please upload a JPG, JPEG, or PNG image.");
+      return;
     }
-    //set the image preview
+
+    setImageErr("");
     formik.setFieldValue("image", file);
     setImagePreview(URL.createObjectURL(file));
   };
-  //!remove image
+
   const removeImage = () => {
     formik.setFieldValue("image", null);
     setImagePreview(null);
   };
-  //get loading state
+
   const isLoading = mutation.isPending;
-  //isErr
   const isError = mutation.isError;
-  //success
   const isSuccess = mutation.isSuccess;
-  //Error
-  const errorMsg = mutation?.error?.response?.data?.message;
+  const errorMsg = mutation?.error?.response?.data?.message || "Failed to upload image.";
 
   return (
-    <div className="flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 m-4">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
+    <div className="max-w-md mx-auto py-4">
+      <div className="bg-white/70 backdrop-blur-md border border-slate-100/80 rounded-3xl p-6 sm:p-8 shadow-sm">
+        <h2 className="text-xl font-bold text-slate-800 tracking-tight text-center mb-6">
           Upload Profile Picture
         </h2>
-        {/* show alert */}
 
-        {isLoading && (
-          <AlertMessage type="loading" message="Loading please wait" />
-        )}
-        {isSuccess && (
-          <AlertMessage
-            type="success"
-            message="Profile image has been upddated successfully"
-          />
-        )}
-        {isError && <AlertMessage type="error" message={errorMsg} />}
-        <form onSubmit={formik.handleSubmit} className="space-y-6">
-          {/* Image Upload Input - File input for uploading images */}
-          <div className="flex flex-col items-center justify-center bg-gray-50 p-4 shadow rounded-lg">
-            <label
-              htmlFor="images"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Upload Image
-            </label>
-            <div className="flex justify-center items-center w-full">
-              <input
-                id="images"
-                type="file"
-                name="image"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-              />
+        {/* Status Alerts */}
+        <div className="mb-4 space-y-2">
+          {isLoading && (
+            <AlertMessage type="loading" message="Uploading profile picture..." />
+          )}
+          {isSuccess && (
+            <AlertMessage
+              type="success"
+              message="Profile picture updated successfully!"
+            />
+          )}
+          {isError && <AlertMessage type="error" message={errorMsg} />}
+        </div>
+
+        <form onSubmit={formik.handleSubmit} className="space-y-5">
+          {/* Custom Upload Drop Area */}
+          <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl p-6 bg-slate-50/40 transition-colors relative">
+            <input
+              id="images"
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            
+            {!imagePreview ? (
               <label
                 htmlFor="images"
-                className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
+                className="flex flex-col items-center justify-center cursor-pointer w-full text-center py-4"
               >
-                Choose a file
+                <FaCloudUploadAlt className="text-indigo-500 text-4xl mb-2" />
+                <span className="text-slate-700 text-sm font-bold">Choose a photo</span>
+                <span className="text-slate-400 text-xs font-semibold mt-1">PNG, JPG or JPEG (Max 5MB)</span>
               </label>
-            </div>
-            {/* Display error message */}
-            {formik.touched.image && formik.errors.image && (
-              <p className="text-sm text-red-600">{formik.errors.image}</p>
-            )}
-
-            {/* error message */}
-            {imageError && <p className="text-sm text-red-600">{imageError}</p>}
-
-            {/* Preview image */}
-
-            {imagePreview && (
-              <div className="mt-2 relative">
+            ) : (
+              <div className="relative flex flex-col items-center mt-2">
                 <img
                   src={imagePreview}
                   alt="Preview"
-                  className="mt-2 h-24 w-24 object-cover rounded-full"
+                  className="h-28 w-28 object-cover rounded-full ring-4 ring-indigo-50"
                 />
                 <button
+                  type="button"
                   onClick={removeImage}
-                  className="absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-1"
+                  className="absolute right-0 top-0 transform translate-x-1/3 -translate-y-1/3 bg-white hover:bg-slate-50 border border-slate-100 text-rose-500 rounded-full p-1.5 shadow-sm transition-all"
+                  title="Remove image"
                 >
-                  <FaTimesCircle className="text-red-500" />
+                  <FaTimesCircle size={16} />
                 </button>
               </div>
             )}
           </div>
 
-          {/* Submit Button - Button to submit the form */}
+          {/* Validation/Error Messages */}
+          {formik.touched.image && formik.errors.image && (
+            <p className="text-xs font-bold text-rose-600 text-center">{formik.errors.image}</p>
+          )}
+          {imageError && (
+            <p className="text-xs font-bold text-rose-600 text-center">{imageError}</p>
+          )}
+
+          {/* Action Button */}
           <button
             type="submit"
-            className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-orange-500 hover:from-indigo-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            disabled={isLoading || !formik.values.image}
+            className="w-full py-3 rounded-full text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-md shadow-indigo-100 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none"
           >
-            Upload Profile Picture
+            Upload Photo
           </button>
         </form>
       </div>

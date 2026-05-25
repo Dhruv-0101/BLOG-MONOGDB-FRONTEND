@@ -1,6 +1,7 @@
 import axios from "axios";
+import { BASE_URL as API_BASE } from "../../utils/baseEndpoint";
 //create that must return a promise
-const BASE_URL = "https://blog-monogdb-backend.onrender.com/api/v1/earnings";
+const BASE_URL = `${API_BASE}/earnings`;
 
 //! Fetch all earnings
 export const fetchAllEarningsAPI = async () => {

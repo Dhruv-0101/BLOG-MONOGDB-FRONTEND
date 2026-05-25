@@ -1,39 +1,61 @@
 import React from "react";
-import { FaUserCircle, FaEnvelope, FaKey, FaCheckCircle } from "react-icons/fa";
+import { FaUserCircle, FaEnvelope, FaChevronRight, FaCog } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const Settings = () => {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <div className=" p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">
-          User Settings
-        </h2>
-        {/* upload profile photo */}
-        <Link to="/dashboard/upload-profile-photo">
-          <div className="bg-white shadow-lg rounded-lg p-6 mb-4 hover:bg-orange-100 transition-colors duration-200">
-            <div className="flex items-center space-x-4">
-              <FaUserCircle className="text-orange-500 text-3xl" />
-              <div className="flex-1">
-                <h3 className="text-gray-700 font-semibold text-lg">
-                  Update Profile Photo
-                </h3>
-                <p className="text-gray-600">Change your profile photo</p>
-              </div>
+    <div className="max-w-2xl mx-auto space-y-6 antialiased">
+      {/* Header section */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-650 shadow-inner">
+          <FaCog className="h-5 w-5 animate-spin-slow" style={{ animationDuration: '8s' }} />
+        </div>
+        <div>
+          <h1 className="text-xl font-extrabold text-slate-800 tracking-tight">Account Settings</h1>
+          <p className="text-xs font-semibold text-slate-450 mt-0.5">
+            Manage your personal profile picture, verified email address, and notifications.
+          </p>
+        </div>
+      </div>
+
+      {/* Settings Grid */}
+      <div className="space-y-4">
+        {/* Upload profile photo */}
+        <Link to="/dashboard/upload-profile-photo" className="group block">
+          <div className="bg-white/70 backdrop-blur-md border border-slate-100 hover:border-indigo-200/50 rounded-2xl p-5 hover:bg-white/95 hover:scale-[1.005] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-4">
+            <div className="w-12 h-12 bg-indigo-50 group-hover:bg-indigo-100/70 rounded-xl flex items-center justify-center text-indigo-600 shadow-inner transition-colors">
+              <FaUserCircle size={24} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-slate-800 font-bold text-sm sm:text-base group-hover:text-indigo-650 transition-colors">
+                Update Profile Photo
+              </h3>
+              <p className="text-slate-500 text-xs font-medium mt-0.5 leading-relaxed">
+                Change or upload your custom writer avatar picture displayed publicly on all your stories.
+              </p>
+            </div>
+            <div className="text-slate-400 group-hover:text-indigo-500 transition-colors pl-2">
+              <FaChevronRight className="h-4 w-4" />
             </div>
           </div>
         </Link>
-        {/* add email */}
-        <Link to="/dashboard/add-email">
-          <div className="bg-white shadow-lg rounded-lg p-6 mb-4 hover:bg-orange-100 transition-colors duration-200">
-            <div className="flex items-center space-x-4">
-              <FaEnvelope className="text-orange-500 text-3xl" />
-              <div className="flex-1">
-                <h3 className="text-gray-700 font-semibold text-lg">
-                  Update Email
-                </h3>
-                <p className="text-gray-600">Change your email address</p>
-              </div>
+
+        {/* Add email */}
+        <Link to="/dashboard/add-email" className="group block">
+          <div className="bg-white/70 backdrop-blur-md border border-slate-100 hover:border-indigo-200/50 rounded-2xl p-5 hover:bg-white/95 hover:scale-[1.005] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-4">
+            <div className="w-12 h-12 bg-indigo-50 group-hover:bg-indigo-100/70 rounded-xl flex items-center justify-center text-indigo-600 shadow-inner transition-colors">
+              <FaEnvelope size={22} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-slate-800 font-bold text-sm sm:text-base group-hover:text-indigo-650 transition-colors">
+                Update Email Address
+              </h3>
+              <p className="text-slate-500 text-xs font-medium mt-0.5 leading-relaxed">
+                Configure your official billing and mailing email address to receive important platform updates.
+              </p>
+            </div>
+            <div className="text-slate-400 group-hover:text-indigo-500 transition-colors pl-2">
+              <FaChevronRight className="h-4 w-4" />
             </div>
           </div>
         </Link>

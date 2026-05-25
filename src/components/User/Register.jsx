@@ -5,182 +5,234 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { registerAPI } from "../../APIServices/users/usersAPI";
 import AlertMessage from "../Alert/AlertMessage";
+import { BASE_URL } from "../../utils/baseEndpoint";
+import { FaBlog, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 
 const Register = () => {
-  //navigate
   const navigate = useNavigate();
-  // user mutation
+
   const userMutation = useMutation({
     mutationKey: ["user-registration"],
     mutationFn: registerAPI,
   });
-  // formik config
+
   const formik = useFormik({
-    // initial data
     initialValues: {
       username: "",
       email: "",
       password: "",
     },
-    // validation
     validationSchema: Yup.object({
       username: Yup.string().required("Username is required"),
       email: Yup.string()
-        .email("Enter valid email")
+        .email("Enter a valid email")
         .required("Email is required"),
       password: Yup.string().required("Password is required"),
     }),
-    // submit
     onSubmit: (values) => {
-      console.log(values);
       userMutation
         .mutateAsync(values)
         .then(() => {
-          // redirect
-          navigate("/login");
+          setTimeout(() => {
+            navigate("/login");
+          }, 3000);
         })
         .catch((err) => console.log(err));
     },
   });
-  console.log(userMutation);
-  return (
-    <div className="flex flex-wrap pb-24">
-      <div className="w-full  p-4">
-        <div className="flex flex-col justify-center py-24 max-w-md mx-auto h-full">
-          <form onSubmit={formik.handleSubmit}>
-            <Link
-              to="/login"
-              className="inline-block text-gray-500 hover: transition duration-200 mb-8"
-            >
-              <span>Already have an account?</span> {""}
-              <span />
-              <span className="font-bold font-heading">Login</span>
-            </Link>
-            {/* show message */}
-            {/* show alert */}
 
-            {userMutation.isPending && (
-              <AlertMessage type="loading" message="Loading please wait..." />
-            )}
-            {userMutation.isSuccess && (
-              <AlertMessage type="success" message="Registration success" />
-            )}
-            {userMutation.isError && (
-              <AlertMessage
-                type="error"
-                message={userMutation.error.response.data.message}
-              />
-            )}
+  return (
+    <div className="relative h-[calc(100vh-4.5rem)] w-full flex items-center justify-center bg-gradient-to-b from-slate-50 to-white px-4 overflow-hidden">
+      {/* Dynamic Background Blurs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-gradient-to-tr from-violet-200 via-indigo-200 to-purple-100 rounded-full blur-[120px] opacity-70 pointer-events-none z-0" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-gradient-to-br from-pink-200 via-rose-100 to-amber-100 rounded-full blur-[130px] opacity-60 pointer-events-none z-0" />
+
+      {/* Register Card */}
+      <div className="relative w-full max-w-md bg-white/70 backdrop-blur-xl border border-white shadow-xl p-5 md:p-6 rounded-3xl z-10">
+        {/* Brand Header */}
+        <div className="text-center mb-4">
+          <div className="inline-flex w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 items-center justify-center text-white shadow-md mb-1.5">
+            <FaBlog size="20" />
+          </div>
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-0.5">
+            Create Account
+          </h2>
+          <p className="text-xs text-slate-500">
+            Join StoryFlow community today
+          </p>
+        </div>
+
+        {/* Alert Messages */}
+        {userMutation.isPending && (
+          <div className="mb-3">
+            <AlertMessage type="loading" message="Creating account..." />
+          </div>
+        )}
+        {userMutation.isSuccess && (
+          <div className="mb-3">
+            <AlertMessage
+              type="success"
+              message="Registration successful! Redirecting to login page..."
+            />
+          </div>
+        )}
+        {userMutation.isError && (
+          <div className="mb-3">
+            <AlertMessage
+              type="error"
+              message={
+                userMutation?.error?.response?.data?.message ||
+                "Registration failed"
+              }
+            />
+          </div>
+        )}
+
+        <form onSubmit={formik.handleSubmit} className="space-y-3">
+          {/* Username Input */}
+          <div>
             <label
-              className="block text-sm font-medium mb-2"
-              htmlFor="textInput1"
+              className="block text-sm font-bold text-slate-700 mb-1.5"
+              htmlFor="username"
             >
               Username
             </label>
-            <input
-              className="w-full rounded-full p-4 outline-none border border-gray-100 shadow placeholder-gray-500 focus:ring focus:ring-orange-200 transition duration-200 mb-4"
-              type="text"
-              placeholder="Enter username"
-              {...formik.getFieldProps("username")}
-            />
-            {/* error */}
+            <div className="relative flex items-center">
+              <span className="absolute left-4 text-slate-400">
+                <FaUser size="14" />
+              </span>
+              <input
+                id="username"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 bg-white/50"
+                type="text"
+                placeholder="Choose username"
+                {...formik.getFieldProps("username")}
+              />
+            </div>
             {formik.touched.username && formik.errors.username && (
-              <div className="text-red-500 mt-1">{formik.errors.username}</div>
+              <p className="text-xs text-red-500 mt-1 font-semibold">
+                {formik.errors.username}
+              </p>
             )}
+          </div>
+
+          {/* Email Input */}
+          <div>
             <label
-              className="block text-sm font-medium mb-2"
-              htmlFor="textInput1"
+              className="block text-sm font-bold text-slate-700 mb-1.5"
+              htmlFor="email"
             >
-              Email
+              Email Address
             </label>
-            <input
-              className="w-full rounded-full p-4 outline-none border border-gray-100 shadow placeholder-gray-500 focus:ring focus:ring-orange-200 transition duration-200 mb-4"
-              type="text"
-              placeholder="john@email.com"
-              {...formik.getFieldProps("email")}
-            />
-            {/* error */}
+            <div className="relative flex items-center">
+              <span className="absolute left-4 text-slate-400">
+                <FaEnvelope size="14" />
+              </span>
+              <input
+                id="email"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 bg-white/50"
+                type="email"
+                placeholder="john@email.com"
+                {...formik.getFieldProps("email")}
+              />
+            </div>
             {formik.touched.email && formik.errors.email && (
-              <div className="text-red-500 mt-1">{formik.errors.email}</div>
+              <p className="text-xs text-red-500 mt-1 font-semibold">
+                {formik.errors.email}
+              </p>
             )}
+          </div>
+
+          {/* Password Input */}
+          <div>
             <label
-              className="block text-sm font-medium mb-2"
-              htmlFor="textInput2"
+              className="block text-sm font-bold text-slate-700 mb-1.5"
+              htmlFor="password"
             >
               Password
             </label>
-            <div className="flex items-center gap-1 w-full rounded-full p-4 border border-gray-100 shadow mb-8">
+            <div className="relative flex items-center">
+              <span className="absolute left-4 text-slate-400">
+                <FaLock size="14" />
+              </span>
               <input
-                className="outline-none flex-1 placeholder-gray-500 "
-                id="textInput2"
+                id="password"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 bg-white/50"
                 type="password"
-                placeholder="Enter password"
+                placeholder="Create password"
                 {...formik.getFieldProps("password")}
               />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width={24}
-                height={24}
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <path
-                  d="M21.25 9.15C18.94 5.52 15.56 3.43 12 3.43C10.22 3.43 8.49 3.95 6.91 4.92C5.33 5.9 3.91 7.33 2.75 9.15C1.75 10.72 1.75 13.27 2.75 14.84C5.06 18.48 8.44 20.56 12 20.56C13.78 20.56 15.51 20.04 17.09 19.07C18.67 18.09 20.09 16.66 21.25 14.84C22.25 13.28 22.25 10.72 21.25 9.15ZM12 16.04C9.76 16.04 7.96 14.23 7.96 12C7.96 9.77 9.76 7.96 12 7.96C14.24 7.96 16.04 9.77 16.04 12C16.04 14.23 14.24 16.04 12 16.04Z"
-                  fill="#A3A3A3"
-                />
-                <path
-                  d="M12.0004 9.14C10.4304 9.14 9.15039 10.42 9.15039 12C9.15039 13.57 10.4304 14.85 12.0004 14.85C13.5704 14.85 14.8604 13.57 14.8604 12C14.8604 10.43 13.5704 9.14 12.0004 9.14Z"
-                  fill="#A3A3A3"
-                />
-              </svg>
             </div>
-            {/* error */}
             {formik.touched.password && formik.errors.password && (
-              <div className="text-red-500 mt-1">{formik.errors.password}</div>
+              <p className="text-xs text-red-500 mt-1 font-semibold">
+                {formik.errors.password}
+              </p>
             )}
-            <button
-              className="h-14 inline-flex items-center justify-center py-4 px-6 text-white font-bold font-heading rounded-full bg-orange-500 w-full text-center border border-orange-600 shadow hover:bg-orange-600 focus:ring focus:ring-orange-200 transition duration-200 mb-8"
-              type="submit"
+          </div>
+
+          {/* Submit Button */}
+          <button
+            className="w-full py-3.5 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold shadow-md shadow-indigo-100 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mt-2"
+            type="submit"
+          >
+            Create Account
+          </button>
+
+          {/* Divider */}
+          <div className="relative flex py-2 items-center">
+            <div className="flex-grow border-t border-slate-200"></div>
+            <span className="flex-shrink mx-4 text-slate-400 text-xs font-bold uppercase tracking-wider">
+              or
+            </span>
+            <div className="flex-grow border-t border-slate-200"></div>
+          </div>
+
+          {/* Google Auth Link */}
+          <a
+            href={`${BASE_URL}/users/auth/google`}
+            className="w-full py-3.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-350 shadow-sm flex items-center justify-center gap-3 transition-all duration-200 text-slate-700 font-bold hover:scale-[1.01] active:scale-[0.99]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={18}
+              height={18}
+              viewBox="0 0 21 20"
+              fill="none"
             >
-              Sign Up
-            </button>
-            {/* login with google */}
-            <a
-              href="https://blog-monogdb-backend.onrender.com/api/v1/users/auth/google"
-              className="h-14 inline-flex items-center justify-center gap-2 py-4 px-6 rounded-full bg-white w-full text-center border border-gray-100 shadow hover:bg-gray-50 focus:ring focus:ring-orange-200 transition duration-200"
-              type="submit"
+              <path
+                d="M10.5003 1.91667C12.5358 1.91667 14.3903 2.67493 15.8117 3.91839L13.8037 5.92643C12.9021 5.19326 11.7542 4.75001 10.5003 4.75001C7.601 4.75001 5.25033 7.10068 5.25033 10C5.25033 12.8993 7.601 15.25 10.5003 15.25C12.7863 15.25 14.7244 13.7867 15.4456 11.7501L15.5636 11.4167H15.2099H10.7503V8.58334H17.7503V8.61792H18.0003H18.4637C18.5415 9.06752 18.5837 9.52907 18.5837 10C18.5837 14.464 14.9643 18.0833 10.5003 18.0833C6.03631 18.0833 2.41699 14.464 2.41699 10C2.41699 5.53599 6.03631 1.91667 10.5003 1.91667Z"
+                fill="#FFC107"
+                stroke="#FFC107"
+                strokeWidth="0.5"
+              />
+              <path
+                d="M3.12793 6.12125L5.86585 8.12917C6.60668 6.29501 8.40085 5.00001 10.5004 5.00001C11.775 5.00001 12.9346 5.48084 13.8175 6.26625L16.1746 3.90917C14.6863 2.52209 12.6954 1.66667 10.5004 1.66667C7.2996 1.66667 4.52376 3.47375 3.12793 6.12125Z"
+                fill="#FF3D00"
+              />
+              <path
+                d="M10.4998 18.3333C12.6523 18.3333 14.6081 17.5096 16.0869 16.17L13.5077 13.9875C12.6429 14.6452 11.5862 15.0009 10.4998 15C8.3323 15 6.49189 13.6179 5.79855 11.6892L3.08105 13.7829C4.46022 16.4817 7.26105 18.3333 10.4998 18.3333Z"
+                fill="#4CAF50"
+              />
+              <path
+                d="M18.6713 8.36791H18V8.33333H10.5V11.6667H15.2096C14.8809 12.5902 14.2889 13.3972 13.5067 13.9879L13.5079 13.9871L16.0871 16.1696C15.9046 16.3354 18.8333 14.1667 18.8333 9.99999C18.8333 9.44124 18.7758 8.89583 18.6713 8.36791Z"
+                fill="#1976D2"
+              />
+            </svg>
+            <span>Register with Google</span>
+          </a>
+        </form>
+
+        {/* Footer Toggle */}
+        <div className="text-center mt-8">
+          <p className="text-sm text-slate-500">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-bold text-indigo-600 hover:text-indigo-700 hover:underline transition-colors"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width={21}
-                height={20}
-                viewBox="0 0 21 20"
-                fill="none"
-              >
-                <path
-                  d="M10.5003 1.91667C12.5358 1.91667 14.3903 2.67493 15.8117 3.91839L13.8037 5.92643C12.9021 5.19326 11.7542 4.75001 10.5003 4.75001C7.601 4.75001 5.25033 7.10068 5.25033 10C5.25033 12.8993 7.601 15.25 10.5003 15.25C12.7863 15.25 14.7244 13.7867 15.4456 11.7501L15.5636 11.4167H15.2099H10.7503V8.58334H17.7503V8.61792H18.0003H18.4637C18.5415 9.06752 18.5837 9.52907 18.5837 10C18.5837 14.464 14.9643 18.0833 10.5003 18.0833C6.03631 18.0833 2.41699 14.464 2.41699 10C2.41699 5.53599 6.03631 1.91667 10.5003 1.91667Z"
-                  fill="#FFC107"
-                  stroke="#FFC107"
-                  strokeWidth="0.5"
-                />
-                <path
-                  d="M3.12793 6.12125L5.86585 8.12917C6.60668 6.29501 8.40085 5.00001 10.5004 5.00001C11.775 5.00001 12.9346 5.48084 13.8175 6.26625L16.1746 3.90917C14.6863 2.52209 12.6954 1.66667 10.5004 1.66667C7.2996 1.66667 4.52376 3.47375 3.12793 6.12125Z"
-                  fill="#FF3D00"
-                />
-                <path
-                  d="M10.4998 18.3333C12.6523 18.3333 14.6081 17.5096 16.0869 16.17L13.5077 13.9875C12.6429 14.6452 11.5862 15.0009 10.4998 15C8.3323 15 6.49189 13.6179 5.79855 11.6892L3.08105 13.7829C4.46022 16.4817 7.26105 18.3333 10.4998 18.3333Z"
-                  fill="#4CAF50"
-                />
-                <path
-                  d="M18.6713 8.36791H18V8.33333H10.5V11.6667H15.2096C14.8809 12.5902 14.2889 13.3972 13.5067 13.9879L13.5079 13.9871L16.0871 16.1696C15.9046 16.3354 18.8333 14.1667 18.8333 9.99999C18.8333 9.44124 18.7758 8.89583 18.6713 8.36791Z"
-                  fill="#1976D2"
-                />
-              </svg>
-              <span className="font-bold font-heading">
-                Sign in with Google
-              </span>
-            </a>
-          </form>
+              Sign In
+            </Link>
+          </p>
         </div>
       </div>
     </div>

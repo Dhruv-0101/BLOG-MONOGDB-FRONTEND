@@ -1,59 +1,72 @@
-import { Fragment, useEffect } from "react";
+import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { PlusIcon } from "@heroicons/react/20/solid";
-import { Link, useNavigate } from "react-router-dom";
-
+import { Bars3Icon, XMarkIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { MdOutlineDashboard } from "react-icons/md";
-import { IoLogOutOutline } from "react-icons/io5";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { logoutAPI, userProfileAPI } from "../../APIServices/users/usersAPI";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/slices/authSlices";
 import NotificationCounts from "../Notification/NotificationCounts";
 import Avatar from "../User/Avatar";
+import { FaBlog, FaChevronDown } from "react-icons/fa";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function PrivateNavbar() {
-  // dispatch hook
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // user mutation
   const logoutMutation = useMutation({
     mutationKey: ["logout"],
     mutationFn: logoutAPI,
   });
-  const { data, isLoading, isError, error, refetch } = useQuery({
+
+  const { data } = useQuery({
     queryKey: ["profile"],
     queryFn: userProfileAPI,
   });
-  console.log(data);
-  //logout handler
+
   const logoutHandler = async () => {
     logoutMutation
       .mutateAsync()
       .then(() => {
-        //dispatch action to logout
         dispatch(logout(null));
         navigate("/login");
       })
       .catch((e) => console.log(e));
   };
+
+  const isLinkActive = (path) => {
+    return location.pathname === path;
+  };
+
+  const navLinkClass = (path) => {
+    return isLinkActive(path)
+      ? "inline-flex items-center border-b-2 border-indigo-600 px-1 pt-1 text-sm font-bold text-slate-900 transition-all duration-200"
+      : "inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-semibold text-slate-500 hover:text-indigo-600 hover:border-slate-200 transition-all duration-200";
+  };
+
+  const mobileNavLinkClass = (path) => {
+    return isLinkActive(path)
+      ? "block border-l-4 border-indigo-600 bg-indigo-50/50 py-2 pl-3 pr-4 text-base font-bold text-indigo-700 transition-all duration-200"
+      : "block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-semibold text-slate-500 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700 transition-all duration-200";
+  };
+
   return (
-    <Disclosure as="nav" className="bg-white ">
+    <Disclosure as="nav" className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-100 z-50 shadow-sm">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 justify-start items-center">
-              <div className="flex justify-center flex-row w-full">
-                <div className="-ml-2 mr-2 flex items-left md:hidden">
-                  {/* Mobile menu button */}
-                  <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-                    <span className="absolute -inset-0.5" />
+            <div className="flex h-16 justify-between items-center">
+              
+              <div className="flex items-center gap-8 flex-1">
+                {/* Mobile menu button */}
+                <div className="-ml-2 mr-2 flex items-center md:hidden">
+                  <Disclosure.Button className="relative inline-flex items-center justify-center rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-all duration-200">
                     <span className="sr-only">Open main menu</span>
                     {open ? (
                       <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
@@ -63,75 +76,76 @@ export default function PrivateNavbar() {
                   </Disclosure.Button>
                 </div>
 
-                <div className="hidden md:ml-6 md:flex md:space-x-8">
-                  <Link
-                    to="/posts"
-                    className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  >
+                {/* Logo & Brand */}
+                <Link to="/dashboard" className="flex flex-shrink-0 items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                    <FaBlog size="18" />
+                  </div>
+                  <span className="font-extrabold text-xl text-slate-800 tracking-tight">
+                    Story<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Flow</span>
+                  </span>
+                </Link>
+
+                {/* Desktop Navigation Links */}
+                <div className="hidden md:flex md:space-x-6 h-16">
+                  <Link to="/posts" className={navLinkClass("/posts")}>
                     Latest Posts
                   </Link>
-                  <Link
-                    to="/ranking"
-                    className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  >
+                  <Link to="/ranking" className={navLinkClass("/ranking")}>
                     Creators Ranking
                   </Link>
-                  <Link
-                    to="/pricing"
-                    className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  >
+                  <Link to="/pricing" className={navLinkClass("/pricing")}>
                     Pricing
                   </Link>
                 </div>
               </div>
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <button
-                    onClick={logoutHandler}
-                    type="button"
-                    className="relative m-2 inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600"
-                  >
-                    <IoLogOutOutline className="h-5 w-5" aria-hidden="true" />
-                  </button>
-                  <Link to="/dashboard">
-                    <button
-                      type="button"
-                      className="relative mr-1 inline-flex items-center gap-x-1.5 rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                      <MdOutlineDashboard />
-                      Dashboard
-                    </button>
-                  </Link>
-                  {/* Notification */}
 
-                  <NotificationCounts />
-                </div>
-                <div className="hidden md:ml-1 md:flex md:flex-shrink-0 md:items-center">
-                  {/* Profile dropdown */}
-                  <Menu as="div" className="relative ml-1">
+              {/* Action Buttons & Profile Dropdown */}
+              <div className="flex items-center gap-3">
+                {/* Notification */}
+                <NotificationCounts />
+
+                {/* Dashboard Text Link */}
+                <Link 
+                  to="/dashboard"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors duration-200"
+                >
+                  <MdOutlineDashboard />
+                  <span>Dashboard</span>
+                </Link>
+
+                {/* Write/Create Post Button */}
+                <Link
+                  to="/dashboard/create-post"
+                  className="relative inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-100 hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <PlusIcon className="-ml-0.5 h-4.5 w-4.5 text-white" aria-hidden="true" />
+                  <span>Write</span>
+                </Link>
+
+                {/* User Dropdown */}
+                <div className="flex flex-shrink-0 items-center">
+                  <Menu as="div" className="relative ml-2">
                     <div>
-                      <Menu.Button className="relative flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        <span className="absolute -inset-1.5" />
-                        <span className="sr-only">Open user menu</span>
-                        {/* Profile Image */}
+                      <Menu.Button className="relative flex items-center gap-1.5 p-0.5 rounded-full hover:bg-slate-50 hover:border-slate-200/80 transition-all duration-200">
                         {data?.user?.profilePicture ? (
                           <img
-                            className="h-10 w-10 rounded-full"
-                            src={
-                              data.user.profilePicture.path ||
-                              data.user.profilePicture
-                            }
+                            className="h-9 w-9 rounded-full object-cover ring-2 ring-indigo-50/50 shadow-sm"
+                            src={data.user.profilePicture.path || data.user.profilePicture}
                             alt="profile"
                           />
                         ) : data?.user?.profilePicture?.path ? (
                           <img
-                            className="h-10 w-10 rounded-full"
+                            className="h-9 w-9 rounded-full object-cover ring-2 ring-indigo-50/50 shadow-sm"
                             src={data.user.profilePicture.path}
                             alt="profile"
                           />
                         ) : (
-                          <Avatar />
+                          <div className="h-9 w-9 rounded-full overflow-hidden ring-2 ring-indigo-50/50 shadow-sm">
+                            <Avatar />
+                          </div>
                         )}
+                        <FaChevronDown className="text-slate-400 text-[10px] mr-1 hidden md:block" />
                       </Menu.Button>
                     </div>
                     <Transition
@@ -143,27 +157,59 @@ export default function PrivateNavbar() {
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
-                      <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <Menu.Items className="absolute right-0 z-10 mt-2.5 w-52 origin-top-right rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none border border-slate-50">
+                        {/* User identity in menu */}
+                        <div className="px-4 py-3 border-b border-slate-50 mb-1">
+                          <p className="text-xs font-semibold text-slate-400">Signed in as</p>
+                          <p className="text-sm font-bold text-slate-800 truncate">{data?.user?.username || "Creator"}</p>
+                        </div>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <Link
+                              to="/dashboard"
+                              className={classNames(
+                                active ? "bg-slate-50 text-indigo-650" : "text-slate-700",
+                                "block px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors"
+                              )}
+                            >
+                              My Dashboard
+                            </Link>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <Link
+                              to="/dashboard/create-post"
+                              className={classNames(
+                                active ? "bg-slate-50 text-indigo-650" : "text-slate-700",
+                                "block px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors"
+                              )}
+                            >
+                              Write Article
+                            </Link>
+                          )}
+                        </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
                             <Link
                               to="/dashboard/settings"
                               className={classNames(
-                                active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700"
+                                active ? "bg-slate-50 text-indigo-650" : "text-slate-700",
+                                "block px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors"
                               )}
                             >
                               Settings
                             </Link>
                           )}
                         </Menu.Item>
+                        <div className="border-t border-slate-50 my-1"></div>
                         <Menu.Item>
                           {({ active }) => (
                             <button
                               onClick={logoutHandler}
                               className={classNames(
-                                active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700"
+                                active ? "bg-red-50 text-red-600" : "text-slate-700",
+                                "block w-full text-left px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors"
                               )}
                             >
                               Sign out
@@ -175,99 +221,44 @@ export default function PrivateNavbar() {
                   </Menu>
                 </div>
               </div>
+
             </div>
           </div>
-          {/* Mobile Navs  private links*/}
-          <Disclosure.Panel className="md:hidden">
+
+          {/* Mobile Drawer Panel */}
+          <Disclosure.Panel className="md:hidden border-t border-slate-100 bg-white/95 backdrop-blur-md">
             <div className="space-y-1 pb-3 pt-2">
-              <Link to="/">
-                <Disclosure.Button
-                  as="button"
-                  className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 sm:pl-5 sm:pr-6"
+              <Disclosure.Button as={Link} to="/" className={mobileNavLinkClass("/")}>
+                Home
+              </Disclosure.Button>
+              <Disclosure.Button as={Link} to="/posts" className={mobileNavLinkClass("/posts")}>
+                Latest Posts
+              </Disclosure.Button>
+              <Disclosure.Button as={Link} to="/ranking" className={mobileNavLinkClass("/ranking")}>
+                Creators Ranking
+              </Disclosure.Button>
+              <Disclosure.Button as={Link} to="/pricing" className={mobileNavLinkClass("/pricing")}>
+                Pricing
+              </Disclosure.Button>
+              <div className="border-t border-slate-100 mt-4 pt-4 px-4 flex flex-col gap-2">
+                <Link
+                  to="/dashboard"
+                  className="flex items-center justify-center w-full py-2.5 rounded-full text-sm font-bold text-slate-700 hover:bg-slate-50 border border-slate-200 transition-all duration-200"
                 >
-                  Home
-                </Disclosure.Button>
-              </Link>
-              <Link to="/posts">
-                <Disclosure.Button
-                  as="button"
-                  className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 sm:pl-5 sm:pr-6"
-                >
-                  Latest Posts
-                </Disclosure.Button>
-              </Link>
-              <Link to="/rankings">
-                <Disclosure.Button
-                  as="button"
-                  className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 sm:pl-5 sm:pr-6"
-                >
-                  Creators Ranking
-                </Disclosure.Button>
-              </Link>
-              <Link to="/pricing">
-                <Disclosure.Button
-                  as="button"
-                  className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 sm:pl-5 sm:pr-6"
-                >
-                  Pricing
-                </Disclosure.Button>
-              </Link>
-            </div>
-            {/* Profile links */}
-            <div className="border-t border-gray-200 pb-3 pt-4">
-              <div className="flex items-center px-4 sm:px-6">
-                <div className="flex-shrink-0">
-                  <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-orange-100">
-                    <BellIcon
-                      className="h-5 w-5 text-orange-500"
-                      aria-hidden="true"
-                    />
-                  </span>
-                  {/* Profile Image */}
-                  {data?.user?.profilePicture ? (
-                    <img
-                      className="h-10 w-10 rounded-full"
-                      src={
-                        data.user.profilePicture.path ||
-                        data.user.profilePicture
-                      }
-                      alt="profile"
-                    />
-                  ) : data?.user?.profilePicture?.path ? (
-                    <img
-                      className="h-10 w-10 rounded-full"
-                      src={data.user.profilePicture.path}
-                      alt="profile"
-                    />
-                  ) : (
-                    <Avatar />
-                  )}
-                </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium text-gray-800">
-                    {/* {localStorage.getItem("username")} */}
-                  </div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {/* {data?.user?.username} */}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 space-y-1">
-                <Link to="/dashboard/settings">
-                  <Disclosure.Button
-                    as="button"
-                    className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800 sm:px-6"
-                  >
-                    Settings
-                  </Disclosure.Button>
+                  Dashboard
                 </Link>
-                <Disclosure.Button
-                  as="button"
-                  // onClick={logoutHandler}
-                  className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800 sm:px-6"
+                <Link
+                  to="/dashboard/settings"
+                  className="flex items-center justify-center w-full py-2.5 rounded-full text-sm font-bold text-slate-700 hover:bg-slate-50 border border-slate-200 transition-all duration-200"
                 >
-                  Sign out
-                </Disclosure.Button>
+                  Settings
+                </Link>
+                <button
+                  onClick={logoutHandler}
+                  className="flex items-center justify-center w-full py-2.5 rounded-full text-sm font-bold text-white bg-red-655 bg-red-600 hover:bg-red-700 transition-all duration-200"
+                >
+                  Sign Out
+                </button>
               </div>
             </div>
           </Disclosure.Panel>
